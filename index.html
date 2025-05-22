@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Scholarship Finder</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: row;
+      height: 100vh;
+    }
+
+    .left {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+    }
+    .right {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+
+    .left {
+      background-color: #1861ba;
+      color: #fff;
+    }
+
+    .right {
+      background-color: #fff;
+      color: #000;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    select, input, button {
+      margin: 10px 0;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #05305b;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #131f2f;
+    }
+
+    .reset-btn {
+      background-color: #ccc;
+      color: black;
+      margin-top: 5px;
+    }
+
+    .card {
+      background-color: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 10px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .card strong {
+      display: block;
+      font-size: 18px;
+      color: #1861ba;
+      margin-bottom: 5px;
+    }
+
+    .card span {
+      display: block;
+      margin-top: 8px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    #results p {
+      font-style: italic;
+      color: #6b7280;
+    }
+
+    .right h2 {
+      background-color: #0a376e;
+      color: #fff;
+      width: 100%;
+      padding: 15px 0;
+      margin: 0;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+
+    .details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      background-color: #e9f0fb;
+      padding: 0 15px;
+      border-radius: 0 0 8px 8px;
+      margin-top: 8px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .card.active .details {
+      max-height: 200px; 
+      padding: 10px 15px;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      .left {
+        width: 100%;
+        height: auto;
+        padding: 20px;
+      }
+      .left h2{
+        font-weight: bolder;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="left">
+    <h2>Scholarship Finder</h2>
+    <form id="scholarshipForm">
+      <label for="studentName">Student Name</label>
+      <input type="text" id="studentName" placeholder="Enter your name" required />
+
+      <label for="marks">Percentage Marks</label>
+      <input type="number" id="marks" min="0" max="100" placeholder="e.g., 75" required />
+
+      <label for="school">School</label>
+      <select id="school" required>
+        <option value="">-- Select School --</option>
+        <option value="NGP">NGP Public School</option>
+      </select>
+
+      <label for="state">State</label>
+      <select id="state" required>
+        <option value="">-- Select State --</option>
+        <option value="Tamil Nadu">Tamil Nadu</option>
+      </select>
+
+      <label for="district">District</label>
+      <select id="district" required>
+        <option value="">-- Select District --</option>
+        <option value="Coimbatore">Coimbatore</option>
+        <option value="Chennai">Chennai</option>
+        <option value="Madurai">Madurai</option>
+      </select>
+
+      <label for="category">Select Category</label>
+      <select id="category" required>
+        <option value="">-- Choose Category --</option>
+        <option value="General">General</option>
+        <option value="SC">SC</option>
+        <option value="OBC">OBC</option>
+      </select>
+
+      <label for="income">Annual Income (₹)</label>
+      <input type="number" id="income" min="24000" placeholder="e.g., 200000" required />
+
+      <button type="submit">Check Scholarships</button>
+      <button type="reset" class="reset-btn">Reset Form</button>
+    </form>
+  </div>
+
+  <div class="right">
+    <h2>Scholarships</h2>
+    <div id="results">
+      <p>Fill the form to see eligible scholarships.</p>
+    </div>
+  </div>
+
+<script>
+  const scholarships = [
+    {
+      name: "First Graduate Scholarship",
+      category: "General",
+      incomeLimit: 200000,
+      minMarks: 60,
+      requiredDocs: "Community Certificate, Income Certificate, First Graduate Certificate",
+      explanation: "This scholarship supports first generation graduates from economically weaker sections.",
+      deadline: "2025-07-31"
+    },
+    {
+      name: "BC/MBC Post Matric Scholarship",
+      category: "OBC",
+      incomeLimit: 250000,
+      minMarks: 60,
+      requiredDocs: "Community Certificate, Income Certificate, Marksheet",
+      explanation: "Aimed at students belonging to BC and MBC categories pursuing post-matric studies.",
+      deadline: "2025-08-15"
+    },
+    {
+      name: "SC/ST Post Matric Scholarship",
+      category: "SC",
+      incomeLimit: 250000,
+      minMarks: 50,
+      requiredDocs: "Caste Certificate, Income Certificate, Marksheet",
+      explanation: "Designed for SC/ST students to support their higher education expenses.",
+      deadline: "2025-06-30"
+    },
+    {
+      name: "Moovalur Ramamirtham Scheme",
+      category: "General",
+      incomeLimit: 500000,
+      minMarks: 60,
+      requiredDocs: "Bank Passbook, Aadhar Card, College ID",
+      explanation: "Provides financial assistance to deserving students under the Moovalur Ramamirtham scheme.",
+      deadline: "2025-09-05"
+    },
+    {
+      name: "EVR Nagammai Scholarship",
+      category: "OBC",
+      incomeLimit: 200000,
+      minMarks: 65,
+      requiredDocs: "Community Certificate, Marksheet",
+      explanation: "Scholarship for OBC students excelling in academics.",
+      deadline: "2025-07-15"
+    },
+    {
+      name: "National Means-cum-Merit Scholarship (NMMS)",
+      category: "General",
+      incomeLimit: 150000,
+      minMarks: 55,
+      requiredDocs: "Income Certificate, Marksheet, Caste Certificate (if applicable)",
+      explanation: "Supports meritorious students from economically weaker sections to reduce dropout after class 8.",
+      deadline: "2025-11-15"
+    },
+    {
+      name: "Inspire Scholarship for Higher Education (SHE)",
+      category: "General",
+      incomeLimit: 500000,
+      minMarks: 85,
+      requiredDocs: "Marksheet, Income Certificate, Aadhar Card",
+      explanation: "For students pursuing BSc, BS, and MSc courses in Natural and Basic Sciences.",
+      deadline: "2025-10-20"
+    },
+    {
+      name: "Tamil Nadu Free Education Scheme for Girls",
+      category: "General",
+      incomeLimit: 300000,
+      minMarks: 50,
+      requiredDocs: "Community Certificate, Marksheet, College ID",
+      explanation: "Provides tuition fee waiver for girl students from Tamil Nadu.",
+      deadline: "2025-08-10"
+    },
+    {
+      name: "Post Matric Scholarship for Minority Students",
+      category: "General",
+      incomeLimit: 200000,
+      minMarks: 50,
+      requiredDocs: "Minority Certificate, Marksheet, Income Certificate",
+      explanation: "Supports students belonging to minority communities at post-matric level.",
+      deadline: "2025-09-30"
+    },
+    {
+      name: "Pragati Scholarship for Girl Students",
+      category: "General",
+      incomeLimit: 800000,
+      minMarks: 60,
+      requiredDocs: "Aadhar Card, Marksheet, Income Certificate",
+      explanation: "AICTE scheme for girl students pursuing technical education.",
+      deadline: "2025-12-01"
+    }
+  ];
+
+  function displayScholarships(list) {
+    const resultDiv = document.getElementById('results');
+    resultDiv.innerHTML = "";
+
+    if (list.length === 0) {
+      resultDiv.innerHTML = "<p>No matching scholarships found.</p>";
+      return;
+    }
+
+    list.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+    list.forEach(sch => {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const deadlineDate = new Date(sch.deadline);
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      const deadlineStr = deadlineDate.toLocaleDateString(undefined, options);
+
+      card.innerHTML = `
+        <strong>${sch.name}</strong>
+        <span>Required Documents: ${sch.requiredDocs}</span>
+        <span><strong>Deadline:</strong> ${deadlineStr}</span>
+        <div class="details">
+          <p><strong>Explanation:</strong> ${sch.explanation}</p>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        card.classList.toggle('active');
+      });
+
+      resultDiv.appendChild(card);
+    });
+  }
+
+  // Show all scholarships on load
+  window.addEventListener('DOMContentLoaded', () => {
+    displayScholarships(scholarships);
+  });
+
+  // Filter scholarships on form submit
+  document.getElementById('scholarshipForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const category = document.getElementById('category').value;
+    const income = parseInt(document.getElementById('income').value);
+    const marks = parseInt(document.getElementById('marks').value);
+
+    if (!category || isNaN(income) || isNaN(marks)) {
+      alert("Please complete all fields correctly.");
+      return;
+    }
+
+    if (income < 24000) {
+      alert("Minimum annual income must be ₹24,000 or more.");
+      return;
+    }
+
+    const matched = scholarships.filter(sch =>
+      sch.category === category &&
+      income <= sch.incomeLimit &&
+      marks >= sch.minMarks
+    );
+
+    displayScholarships(matched);
+  });
+</script>
+
+
+</body>
+</html>
